@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 //using static Models;
 
 public class SceneManager : MonoBehaviour
@@ -29,9 +30,17 @@ public class SceneManager : MonoBehaviour
     //Toggle用のフィールド
     public Toggle isDefaultSetting;
 
+    [SerializeField]
+    private VideoClip[] videos;
+    [SerializeField]
+    private RenderTexture[] rawImages;
+    [SerializeField]
+    private GameObject AICharactor;
+
     // Start is called before the first frame update
     void Start()
     {
+        ChangeAICharactor(1);
         _openAIApiKey = ReadFile("OpenAIApiKey");
         isDefaultSetting.isOn = false;
     }
@@ -93,6 +102,7 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void OnTap()
     {
+        ChangeAICharactor(0);
         _ = SendButtonAsync();
     }
 
@@ -108,5 +118,13 @@ public class SceneManager : MonoBehaviour
         var returnChatGPTText = await connection.RequestAsync(_requestText);
 
         returnText.text = returnChatGPTText.choices[0].message.content;
+        ChangeAICharactor(1);
+    }
+
+    void ChangeAICharactor(int num)
+    {
+        AICharactor.GetComponent<VideoPlayer>().clip = videos[num];
+        AICharactor.GetComponent<VideoPlayer>().targetTexture = rawImages[num];
+        AICharactor.GetComponent<RawImage>().texture = rawImages[num];
     }
 }

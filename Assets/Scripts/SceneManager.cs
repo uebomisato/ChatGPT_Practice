@@ -15,7 +15,6 @@ public class SceneManager : MonoBehaviour
     string _requestText = "";
     string _openAIApiKey;
     string _defaultSetting;
-    string returnFilePathText;
 
     [SerializeField]
     InputField inputQuestionField;
@@ -30,6 +29,11 @@ public class SceneManager : MonoBehaviour
     //Toggle用のフィールド
     public Toggle isDefaultSetting;
 
+    //Debug用
+    [SerializeField]
+    GameObject debugModeObject;
+    bool _isOpen = false;
+
     [SerializeField]
     private VideoClip[] videos;
     [SerializeField]
@@ -37,12 +41,19 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     private GameObject AICharactor;
 
-    // Start is called before the first frame update
+
     void Start()
     {
+        debugModeObject.SetActive(_isOpen);
         ChangeAICharactor(1);
-        _openAIApiKey = ReadFile("OpenAIApiKey");
-        isDefaultSetting.isOn = false;
+
+        StartCoroutine(StreamingAssetsLoader.LoadTextFile("OpenAIApiKey.txt", result =>
+        {
+            _openAIApiKey = result;
+        }));
+
+        Debug.Log(_openAIApiKey);
+        isDefaultSetting.isOn = true;
     }
 
     public void OnToggleChanged()
@@ -50,7 +61,13 @@ public class SceneManager : MonoBehaviour
 
         if (isDefaultSetting.isOn)
         {
-            _defaultSetting = ReadFile("defaultSetting");
+            StartCoroutine(StreamingAssetsLoader.LoadTextFile("defaultSetting.txt", result =>
+            {
+                _defaultSetting = result;
+            }));
+
+            Debug.Log(_defaultSetting);
+
             inputSettingField.text = _defaultSetting;
             _nowSettingText = _defaultSetting;
         }
@@ -58,35 +75,6 @@ public class SceneManager : MonoBehaviour
         {
             inputSettingField.text = "";
         }
-    }
-
-    // 読み込み関数
-    string ReadFile(string filePath)
-    {
-        // FileReadTest.txtファイルを読み込む
-        FileInfo fi = new FileInfo(Application.dataPath + "/" + filePath + ".txt");
-
-        try
-        {
-            // 一行毎読み込み
-            using (StreamReader sr = new StreamReader(fi.OpenRead(), Encoding.UTF8))
-            {
-                returnFilePathText = sr.ReadToEnd();
-            }
-        }
-        catch (Exception e)
-        {
-            // 改行コード
-            returnFilePathText += SetDefaultText();
-        }
-
-        return returnFilePathText;
-    }
-
-    // 改行コード処理
-    string SetDefaultText()
-    {
-        return "C#あ\n";
     }
 
     /// <summary>
@@ -126,5 +114,14 @@ public class SceneManager : MonoBehaviour
         AICharactor.GetComponent<VideoPlayer>().clip = videos[num];
         AICharactor.GetComponent<VideoPlayer>().targetTexture = rawImages[num];
         AICharactor.GetComponent<RawImage>().texture = rawImages[num];
+    }
+
+    /// <summary>
+    /// デバッグボタン押下で設定ポップアップ表示の切り替え
+    /// </summary>
+    public void DebugModeButton()
+    {
+        _isOpen = !_isOpen;
+        debugModeObject.SetActive(_isOpen);
     }
 }

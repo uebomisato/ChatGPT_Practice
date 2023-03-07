@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 //using static Models;
 
-public class Connection : MonoBehaviour
+public class Connection
 {
     /*
      * TODO:

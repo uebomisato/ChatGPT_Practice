@@ -8,7 +8,7 @@ public class StreamingAssetsLoader
 {
     public static IEnumerator LoadTextFile(string filename, System.Action<string> onComplete)
     {
-        string filePath = Path.Combine(Application.streamingAssetsPath, filename);
+        string filePath = Path.Combine(Application.streamingAssetsPath + "/Settings/", filename);
 
         if (Application.platform == RuntimePlatform.Android)
         {

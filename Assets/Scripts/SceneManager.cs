@@ -54,6 +54,7 @@ public class SceneManager : MonoBehaviour
 
         Debug.Log(_openAIApiKey);
         isDefaultSetting.isOn = true;
+        OnToggleChanged();
     }
 
     public void OnToggleChanged()

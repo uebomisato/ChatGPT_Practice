@@ -51,12 +51,12 @@ public class Connection
         {
             model = "gpt-3.5-turbo",
             messages = _messageList,
-            max_tokens = 140,
+            max_tokens = 130,
             top_p = 1
         };
         var jsonOptions = JsonUtility.ToJson(options);
 
-        Debug.Log("自分:" + userMessage);
+        //Debug.Log("自分:" + userMessage);
 
 
         //OpenAIの文章生成(Completion)にAPIリクエストを送り、結果を変数に格納
@@ -88,7 +88,7 @@ public class Connection
 
             var responseString = request.downloadHandler.text;
             var responseObject = JsonUtility.FromJson<ChatGPTResponseModel>(responseString);
-            Debug.Log("ChatGPT:" + responseObject.choices[0].message.content);
+            //Debug.Log("ChatGPT:" + responseObject.choices[0].message.content);
             _messageList.Add(responseObject.choices[0].message);
             return responseObject;
         }

@@ -41,6 +41,9 @@ public class SceneManager : MonoBehaviour
     public Toggle isDefaultSetting;
 
     [SerializeField]
+    private GameObject Blur;
+
+    [SerializeField]
     private VideoClip[] videos;
     private VideoPlayer _videoPlayer;
 
@@ -51,23 +54,35 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     private GameObject AICharactor;
 
+    [SerializeField]
+    private Text _totalToken;
+    private int _TotalToken = 0;
+
 
     void Start()
     {
-        SettingsObject.SetActive(_isOpen);
-
         _videoPlayer = AICharactor.GetComponent<VideoPlayer>();
         _rawImage = AICharactor.GetComponent<RawImage>();
-
-        ChangeAICharactor(1);
 
         StartCoroutine(StreamingAssetsLoader.LoadTextFile("OpenAIApiKey.txt", result =>
         {
             _openAIApiKey = result;
         }));
 
-        isDefaultSetting.isOn = true;
-        OnToggleChanged();
+        StartCoroutine(StreamingAssetsLoader.LoadTextFile("defaultSetting.txt", result =>
+        {
+            _defaultSetting = result;
+            // textFieldにも表示させておく
+            inputSettingField.text = _defaultSetting;
+            // 現在の設定内容として保持する
+            _nowSettingText = _defaultSetting;
+        }));
+
+
+        ChangeAICharactor(1);
+
+        SettingsObject.SetActive(_isOpen);
+        Blur.SetActive(_isOpen);
     }
 
     /// <summary>
@@ -78,11 +93,6 @@ public class SceneManager : MonoBehaviour
         // デフォルト設定がONの時、defaultSetting.txtを読み込む
         if (isDefaultSetting.isOn)
         {
-            StartCoroutine(StreamingAssetsLoader.LoadTextFile("defaultSetting.txt", result =>
-            {
-                _defaultSetting = result;
-            }));
-
             // textFieldにも表示させておく
             inputSettingField.text = _defaultSetting;
             // 現在の設定内容として保持する
@@ -123,7 +133,9 @@ public class SceneManager : MonoBehaviour
  
         var connection = new Connection(_openAIApiKey, _nowSettingText);
         var returnChatGPTText = await connection.RequestAsync(_requestText);
+        _TotalToken += returnChatGPTText.usage.total_tokens;
 
+        _totalToken.text = "現在の累計使用トークン数 : " + _TotalToken.ToString();
         returnTextFromApi.text = returnChatGPTText.choices[0].message.content;
         ChangeAICharactor(1);
     }
@@ -146,5 +158,6 @@ public class SceneManager : MonoBehaviour
     {
         _isOpen = !_isOpen;
         SettingsObject.SetActive(_isOpen);
+        Blur.SetActive(_isOpen);
     }
 }

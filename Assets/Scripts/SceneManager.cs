@@ -12,39 +12,53 @@ using UnityEngine.Video;
 public class SceneManager : MonoBehaviour
 {
 
-    string _requestText = "";
-    string _openAIApiKey;
-    string _defaultSetting;
+    private string _requestText = "";
+    private string _openAIApiKey;
+    private string _defaultSetting;
 
+    // ユーザーからの質問入力用テキストフィールド
     [SerializeField]
-    InputField inputQuestionField;
+    private InputField inputQuestionField;
 
+    // API叩いて返ってきたテキスト表示用
     [SerializeField]
-    Text returnText;
+    private Text returnTextFromApi;
 
+    // ***** Debug用に表示する設定画面 *****
+    // 設定画面オブジェクト
     [SerializeField]
-    InputField inputSettingField;
-    string _nowSettingText = "";
+    private GameObject SettingsObject;
 
-    //Toggle用のフィールド
+    // 設定画面を開いているかのbool
+    private bool _isOpen = false;
+
+    // 設定用のテキストフィールド
+    [SerializeField]
+    private InputField inputSettingField;
+    private string _nowSettingText = "";
+
+    // デフォルト設定を適用しているかのON・OFF
     public Toggle isDefaultSetting;
-
-    //Debug用
-    [SerializeField]
-    GameObject debugModeObject;
-    bool _isOpen = false;
 
     [SerializeField]
     private VideoClip[] videos;
+    private VideoPlayer _videoPlayer;
+
     [SerializeField]
-    private RenderTexture[] rawImages;
+    private RenderTexture[] renderTextures;
+    private RawImage _rawImage;
+
     [SerializeField]
     private GameObject AICharactor;
 
 
     void Start()
     {
-        debugModeObject.SetActive(_isOpen);
+        SettingsObject.SetActive(_isOpen);
+
+        _videoPlayer = AICharactor.GetComponent<VideoPlayer>();
+        _rawImage = AICharactor.GetComponent<RawImage>();
+
         ChangeAICharactor(1);
 
         StartCoroutine(StreamingAssetsLoader.LoadTextFile("OpenAIApiKey.txt", result =>
@@ -52,14 +66,16 @@ public class SceneManager : MonoBehaviour
             _openAIApiKey = result;
         }));
 
-        Debug.Log(_openAIApiKey);
         isDefaultSetting.isOn = true;
         OnToggleChanged();
     }
 
+    /// <summary>
+    /// デフォルト設定のON・OFF切り替え
+    /// </summary>
     public void OnToggleChanged()
     {
-
+        // デフォルト設定がONの時、defaultSetting.txtを読み込む
         if (isDefaultSetting.isOn)
         {
             StartCoroutine(StreamingAssetsLoader.LoadTextFile("defaultSetting.txt", result =>
@@ -67,14 +83,16 @@ public class SceneManager : MonoBehaviour
                 _defaultSetting = result;
             }));
 
-            Debug.Log(_defaultSetting);
-
+            // textFieldにも表示させておく
             inputSettingField.text = _defaultSetting;
+            // 現在の設定内容として保持する
             _nowSettingText = _defaultSetting;
         }
         else
         {
+            // デフォルト設定がOFFの時、設定内容を削除
             inputSettingField.text = "";
+            _nowSettingText = "";
         }
     }
 
@@ -106,15 +124,19 @@ public class SceneManager : MonoBehaviour
         var connection = new Connection(_openAIApiKey, _nowSettingText);
         var returnChatGPTText = await connection.RequestAsync(_requestText);
 
-        returnText.text = returnChatGPTText.choices[0].message.content;
+        returnTextFromApi.text = returnChatGPTText.choices[0].message.content;
         ChangeAICharactor(1);
     }
 
+    /// <summary>
+    /// キャラクターの動作を変更
+    /// </summary>
+    /// <param name="num">配列の何番目のものに差し替えるか</param>
     void ChangeAICharactor(int num)
     {
-        AICharactor.GetComponent<VideoPlayer>().clip = videos[num];
-        AICharactor.GetComponent<VideoPlayer>().targetTexture = rawImages[num];
-        AICharactor.GetComponent<RawImage>().texture = rawImages[num];
+        _videoPlayer.clip = videos[num];
+        _videoPlayer.targetTexture = renderTextures[num];
+        _rawImage.texture = renderTextures[num];
     }
 
     /// <summary>
@@ -123,6 +145,6 @@ public class SceneManager : MonoBehaviour
     public void DebugModeButton()
     {
         _isOpen = !_isOpen;
-        debugModeObject.SetActive(_isOpen);
+        SettingsObject.SetActive(_isOpen);
     }
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641275, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1268,7 +1268,7 @@ GameObject:
   - component: {fileID: 845190379}
   - component: {fileID: 845190378}
   m_Layer: 5
-  m_Name: AnswerTextField
+  m_Name: ReturnFromAPIText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1823,14 +1823,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputQuestionField: {fileID: 2052446389}
-  returnText: {fileID: 1879145731}
+  returnTextFromApi: {fileID: 1879145731}
+  SettingsObject: {fileID: 1810606870}
   inputSettingField: {fileID: 896117569}
   isDefaultSetting: {fileID: 2133117738}
-  debugModeObject: {fileID: 1810606870}
   videos:
   - {fileID: 32900000, guid: d2b3627d0fb314d539fc746a4e9cf59b, type: 3}
   - {fileID: 32900000, guid: 53e8c5f92ef5647bfa40359d49361647, type: 3}
-  rawImages:
+  renderTextures:
   - {fileID: 8400000, guid: 1be2b948d0e944cc6b235383f94128e1, type: 2}
   - {fileID: 8400000, guid: 73c2e90cc108345869791e161805c225, type: 2}
   AICharactor: {fileID: 434154793}

@@ -21,8 +21,8 @@ public class SceneManager : MonoBehaviour
     private InputField inputQuestionField;
 
     // API叩いて返ってきたテキスト表示用
-    [SerializeField]
-    private Text returnTextFromApi;
+    //[SerializeField]
+    //private Text returnTextFromApi;
 
     // ***** Debug用に表示する設定画面 *****
     // 設定画面オブジェクト
@@ -57,6 +57,16 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     private Text _totalToken;
     private int _TotalToken = 0;
+
+    [SerializeField]
+    private GameObject talkPrefab;
+
+    [SerializeField]
+    private Transform contentTransform;
+
+    bool _isFirstTalking = true;
+
+    private Connection connection;
 
 
     void Start()
@@ -119,6 +129,9 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void OnTap()
     {
+        _requestText = inputQuestionField.text;
+        inputQuestionField.text = "";
+        GenerateTalkPrefab(_requestText,"user");
         ChangeAICharactor(0);
         _ = SendButtonAsync();
     }
@@ -129,14 +142,24 @@ public class SceneManager : MonoBehaviour
     /// <returns></returns>
     async Task SendButtonAsync()
     {
-        _requestText = inputQuestionField.text;
- 
-        var connection = new Connection(_openAIApiKey, _nowSettingText);
+        //_requestText = inputQuestionField.text;
+
+        if (_isFirstTalking)
+        {
+            connection = Init();
+        }
+
+        //var connection = new Connection(_openAIApiKey, _nowSettingText);
         var returnChatGPTText = await connection.RequestAsync(_requestText);
         _TotalToken += returnChatGPTText.usage.total_tokens;
 
         _totalToken.text = "現在の累計使用トークン数 : " + _TotalToken.ToString();
-        returnTextFromApi.text = returnChatGPTText.choices[0].message.content;
+
+        var returnMessage = returnChatGPTText.choices[0].message;
+
+        //returnTextFromApi.text = returnMessage.content;
+
+        GenerateTalkPrefab(returnMessage.content, returnMessage.role);
         ChangeAICharactor(1);
     }
 
@@ -159,5 +182,31 @@ public class SceneManager : MonoBehaviour
         _isOpen = !_isOpen;
         SettingsObject.SetActive(_isOpen);
         Blur.SetActive(_isOpen);
+    }
+
+    void GenerateTalkPrefab(string talkingText,string role)
+    {
+        var obj = Instantiate(talkPrefab, contentTransform);
+        obj.GetComponentInChildren<Text>().text = talkingText;
+
+        if (role == "user")
+        {
+            obj.GetComponent<Image>().color = Color.white;
+        }
+        else if(role == "assistant")
+        {
+            obj.GetComponent<Image>().color = new Color(0.85f, 0.95f, 1.0f, 1.0f);
+        }
+    }
+
+    /// <summary>
+    /// アプリ起動後、最初の会話時にのみConnectionを初期化する
+    /// </summary>
+    /// <returns></returns>
+    Connection Init()
+    {
+        var connection = new Connection(_openAIApiKey, _nowSettingText);
+        _isFirstTalking = !_isFirstTalking;
+        return connection;
     }
 }

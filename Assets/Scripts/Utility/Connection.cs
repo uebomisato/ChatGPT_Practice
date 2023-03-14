@@ -90,9 +90,7 @@ public class Connection
             var responseObject = JsonUtility.FromJson<ChatGPTResponseModel>(responseString);
             _messageList.Add(responseObject.choices[0].message);
 
-            Debug.Log(_messageList.Count);
-
-            if (_messageList.Count > 5)
+            if (_messageList.Count > 3)
             {
                 Debug.Log("前の履歴を削除");
                 _messageList.RemoveRange(1,2);

@@ -68,6 +68,9 @@ public class SceneManager : MonoBehaviour
 
     private Connection connection;
 
+    [SerializeField]
+    private ScrollRect scrollRect;
+
 
     void Start()
     {
@@ -188,6 +191,9 @@ public class SceneManager : MonoBehaviour
     {
         var obj = Instantiate(talkPrefab, contentTransform);
         obj.GetComponentInChildren<Text>().text = talkingText;
+
+        scrollRect.verticalNormalizedPosition = 0; //ここでスクロールを一番下にす
+        obj.GetComponent<ContentSizeFitter>().SetLayoutVertical();
 
         if (role == "user")
         {

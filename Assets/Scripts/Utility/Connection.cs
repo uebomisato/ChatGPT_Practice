@@ -51,7 +51,7 @@ public class Connection
         {
             model = "gpt-3.5-turbo",
             messages = _messageList,
-            max_tokens = 130,
+            max_tokens = 200,
             top_p = 1
         };
         var jsonOptions = JsonUtility.ToJson(options);
@@ -88,8 +88,15 @@ public class Connection
 
             var responseString = request.downloadHandler.text;
             var responseObject = JsonUtility.FromJson<ChatGPTResponseModel>(responseString);
-            //Debug.Log("ChatGPT:" + responseObject.choices[0].message.content);
             _messageList.Add(responseObject.choices[0].message);
+
+            Debug.Log(_messageList.Count);
+
+            if (_messageList.Count > 5)
+            {
+                Debug.Log("前の履歴を削除");
+                _messageList.RemoveRange(1,2);
+            }
             return responseObject;
         }
     }

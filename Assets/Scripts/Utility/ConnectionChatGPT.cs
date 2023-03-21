@@ -78,7 +78,7 @@ public class ConnectionChatGPT
 
             // _messageListには今までのやりとりが追加されていくため、常に一つ前のやり取りのみ保持しておくようにする
             // _messageList[0]には、AIキャラの設定をしているプロンプトが入っている
-            if (_messageList.Count > 3)
+            if (_messageList.Count > 5)
             {
                 _messageList.RemoveRange(1,2);
             }

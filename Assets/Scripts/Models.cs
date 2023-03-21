@@ -50,6 +50,21 @@ public class ChatGPTResponseModel
     }
 }
 
+[Serializable]
+public class ChatGPTResponse
+{
+    public Emotion emotion;
+    public string message;
+}
+
+[Serializable]
+public class Emotion
+{
+    public int joy;
+    public int fun;
+    public int anger;
+    public int sad;
+}
 
 //ChatGPTからのResponse例
 /*

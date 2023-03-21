@@ -4,27 +4,18 @@ using System.Text;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-//using static Models;
 
-public class Connection
+public class ConnectionChatGPT
 {
-    /*
-     * TODO:
-     * - ChatGPTと接続
-     * - 返答を取得
-     * 
-     */
-
+    //APIキー
     private readonly string _apiKey;
     //会話履歴を保持するリスト
     private readonly List<ChatGPTMessageModel> _messageList = new List<ChatGPTMessageModel>();
 
-    ChatGPTMessageModel setting;
-
-    public Connection(string apiKey,string settingText)
+    public ConnectionChatGPT(string apiKey,string settingText)
     {
         _apiKey = apiKey;
-        //AIの応答の前提条件を記録
+        //AIの応答のプロンプトを記録
         _messageList.Add(
             new ChatGPTMessageModel() { role = "system", content = settingText});
     }
@@ -34,19 +25,18 @@ public class Connection
         //文章生成AIのAPIのエンドポイントを設定
         var apiUrl = "https://api.openai.com/v1/chat/completions";
 
-        //ユーザの発話を記録
+        //ユーザーからのメッセージを記録
         _messageList.Add(new ChatGPTMessageModel { role = "user", content = userMessage });
 
         //OpenAIのAPIリクエストに必要なヘッダー情報を設定
         var headers = new Dictionary<string, string>
             {
                 {"Authorization", "Bearer " + _apiKey},
-                {"Content-type", "application/json"},
-                {"X-Slack-No-Retry", "1"}
+                {"Content-type", "application/json"}
             };
 
 
-        //文章生成で利用するモデルやトークン上限、プロンプトをオプションに設定
+        //利用するモデルやトークン上限、プロンプトをオプションに設定
         var options = new RequestModel()
         {
             model = "gpt-3.5-turbo",
@@ -56,25 +46,24 @@ public class Connection
         };
         var jsonOptions = JsonUtility.ToJson(options);
 
-        //Debug.Log("自分:" + userMessage);
-
-
-        //OpenAIの文章生成(Completion)にAPIリクエストを送り、結果を変数に格納
+        //HTTP（POST）の情報を設定
         using UnityWebRequest request = new UnityWebRequest(apiUrl, "POST")
         {
             uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(jsonOptions)),
             downloadHandler = new DownloadHandlerBuffer()
         };
 
+        //HTTPヘッダーを設定
         foreach (var header in headers)
         {
             request.SetRequestHeader(header.Key, header.Value);
         }
 
-        await request.SendWebRequest(); // ここでリクエスト送信
+        //ここでリクエスト送信
+        await request.SendWebRequest();
 
 
-        //エラーの時はここに入る
+        //エラーの時
         if (request.result == UnityWebRequest.Result.ConnectionError ||
            request.result == UnityWebRequest.Result.ProtocolError)
         {
@@ -83,16 +72,14 @@ public class Connection
         }
         else
         {
-            //AI側の応答を記録
-            //わかりづらいですが、ここではChatGPTMessageModel {role = "user", content = apiからのレスポンス}と同等のオブジェクトが追加されています。
-
             var responseString = request.downloadHandler.text;
             var responseObject = JsonUtility.FromJson<ChatGPTResponseModel>(responseString);
             _messageList.Add(responseObject.choices[0].message);
 
+            // _messageListには今までのやりとりが追加されていくため、常に一つ前のやり取りのみ保持しておくようにする
+            // _messageList[0]には、AIキャラの設定をしているプロンプトが入っている
             if (_messageList.Count > 3)
             {
-                Debug.Log("前の履歴を削除");
                 _messageList.RemoveRange(1,2);
             }
             return responseObject;

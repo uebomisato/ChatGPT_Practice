@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+//ChatGPT APIのmessageに含まれる要素
 [Serializable]
 public class ChatGPTMessageModel
 {
@@ -10,6 +11,7 @@ public class ChatGPTMessageModel
 }
 
 //ChatGPT APIにRequestを送るためのJSON用クラス
+//modelとmessagesについては必須項目
 [Serializable]
 public class RequestModel
 {
@@ -21,6 +23,7 @@ public class RequestModel
 }
 
 //ChatGPT APIからのResponseを受け取るためのクラス
+//ChatGPTからのResponse例は下記に記載
 [Serializable]
 public class ChatGPTResponseModel
 {

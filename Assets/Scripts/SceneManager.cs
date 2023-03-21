@@ -20,10 +20,6 @@ public class SceneManager : MonoBehaviour
     [SerializeField]
     private InputField inputQuestionField;
 
-    // API叩いて返ってきたテキスト表示用
-    //[SerializeField]
-    //private Text returnTextFromApi;
-
     // ***** Debug用に表示する設定画面 *****
     // 設定画面オブジェクト
     [SerializeField]
@@ -66,7 +62,7 @@ public class SceneManager : MonoBehaviour
 
     bool _isFirstTalking = true;
 
-    private Connection connection;
+    private ConnectionChatGPT connection;
 
     [SerializeField]
     private ScrollRect scrollRect;
@@ -209,9 +205,9 @@ public class SceneManager : MonoBehaviour
     /// アプリ起動後、最初の会話時にのみConnectionを初期化する
     /// </summary>
     /// <returns></returns>
-    Connection Init()
+    ConnectionChatGPT Init()
     {
-        var connection = new Connection(_openAIApiKey, _nowSettingText);
+        var connection = new ConnectionChatGPT(_openAIApiKey, _nowSettingText);
         _isFirstTalking = !_isFirstTalking;
         return connection;
     }
